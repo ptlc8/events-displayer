@@ -62,7 +62,7 @@ function displayEvent(event) {
 }
 
 function computeDate(date) {
-    var timestamp = Date.parse(date);
+    var timestamp = Date.parse(date+"T00:00");
     var daystamp = Math.floor(timestamp / 1000/60/60/24);
     var nowDaystamp = Math.floor(Date.now() / 1000/60/60/24);
     if (daystamp == nowDaystamp)
