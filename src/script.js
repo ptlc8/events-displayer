@@ -1,78 +1,45 @@
-var EVENT_DURATION = 10_000;
-var EVENT_TRANSITION_DURATION = 500;
-var UPDATE_TIMEOUT = 60*1_000;
-var RELOAD_TIMEOUT = 60*60*1_000;
-var EVENTS = null;
+const Events = (function(){
+    function get() {
+        return sendRequest("GET", "events.json");
+    }
+    function getByAsso(asso) {
+        return sendRequest("GET", "events.json", {asso});
+    }
+    function add(event) {
+        return sendRequest("POST", "add.json", {event});
+    }
+    function remove(id) {
+        return sendRequest("POST", "remove.json", {id});
+    }
+    return { get, getByAsso, add, remove }
+})();
 
-window.addEventListener("load", async function() {
-    await updateEvents();
-    nextEvent();
-    this.setInterval(updateEvents, UPDATE_TIMEOUT);
-    setInterval(nextEvent, EVENT_DURATION);
-    setTimeout(()=>window.location.reload(), RELOAD_TIMEOUT);
-});
-
-async function updateEvents() {
-    EVENTS = JSON.parse(await sendRequest("GET", "events.json"));
+function sendRequest(method, url, body=undefined, headers={"Content-Type":"application/json"}) {
+    var promise = new (Promise||ES6Promise)(function(resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        for (let h of Object.keys(headers))
+            xhr.setRequestHeader(h, headers[h]);
+        xhr.onreadystatechange = function() {
+            if (this.readyState == XMLHttpRequest.DONE) {
+                if (200 == this.status)
+                    resolve(JSON.parse(this.response));
+                else reject({error:this.response,status:this.status,success:false});
+            }
+        };
+        xhr.onerror = reject;
+        xhr.send(JSON.stringify(body));
+    });
+    return promise;
 }
 
-let eventIndex = 0;
-function nextEvent() {
-    let elementsToDelete = [...document.body.children];
-    setTimeout(function(){
-        for (let el of elementsToDelete)
-            document.body.removeChild(el);
-    }, EVENT_TRANSITION_DURATION);
-    eventElement = displayEvent(EVENTS[eventIndex++%EVENTS.length]);
-    eventElement.style.opacity = 0;
-    window.getComputedStyle(eventElement).opacity; // useful to update style
-    eventElement.style.opacity = "";
-}
-
-function displayEvent(event) {
-    var eventEl, qr;
-    document.body.appendChild(eventEl=createElement("article", {className:"event", style:{backgroundColor:event.color}}, [
-        createElement("h1", {className:"title"}, event.title),
-        createElement("div", {className:"data"}, [
-            event.poster ? createElement("img", {className:"poster", src:event.poster}) : "",
-            createElement("div", {className:"details"}, [
-                createElement("span", {className:"description"}, event.description),
-                createElement("span", {className:"asso"}, [
-                    createElement("img", {className:"logo",src:event.asso.logo}),
-                    createElement("span", {}, event.asso.name)
-                ]),
-                createElement("span", {className:"datetime"}, [
-                    createElement("span", {className:"material-icons"}, "event"),
-                    createElement("span", {}, computeDate(event.date)+" à "+computeTime(event.time))
-                ]),
-                createElement("span", {className:"place"}, [
-                    createElement("span", {className:"material-icons"}, "place"),
-                    createElement("span", {}, event.place)
-                ]),
-                event.price ? createElement("span", {className:"price"}, [
-                    createElement("span", {className:"material-icons"}, "savings"),
-                    createElement("span", {}, event.price)
-                ]) : "",
-                qr=createElement("div", {className:"qr"})
-            ])
-        ])
-    ]));
-    new QRCode(qr, event.link);
-    return eventEl;
-}
-
-function computeDate(date) {
-    var timestamp = Date.parse(date+"T00:00");
-    var daystamp = Math.floor(timestamp / 1000/60/60/24);
-    var nowDaystamp = Math.floor(Date.now() / 1000/60/60/24);
-    if (daystamp == nowDaystamp)
-        return "Aujourd'hui";
-    if (daystamp-1 == nowDaystamp)
-        return "Demain";
-    date = new Date(timestamp);
-    return date.toLocaleDateString("fr-FR", {weekday:"long",day:"numeric",month:"long"});
-}
-
-function computeTime(time) {
-    return time.replace(":","h");
+function createElement(tag, properties={}, inner=[], eventListeners={}) {
+    let el = document.createElement(tag);
+    for (let p of Object.keys(properties)) if (p!="style" && p!="dataset") el[p] = properties[p];
+    if (properties.style) for (let p of Object.keys(properties.style)) el.style[p] = properties.style[p];
+    if (properties.dataset) for (let p of Object.keys(properties.dataset)) el.dataset[p] = properties.dataset[p];
+    if (typeof inner == "object") for (let i of inner) el.appendChild(typeof i == "string" ? document.createTextNode(i) : i);
+    else el.innerText = inner;
+    for (let l of Object.keys(eventListeners)) el.addEventListener(l, eventListeners[l]);
+    return el;
 }

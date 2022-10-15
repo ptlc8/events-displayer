@@ -9,7 +9,7 @@
   
 
 :root {
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: system-ui, Arial, Helvetica, sans-serif;
 }
 html, body {
     width: 100%;
@@ -19,53 +19,40 @@ body {
     margin: 0;
     position: relative;
 }
-h1 {
-    margin-block: 0;
-}
 
-.event {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    padding: 1em;
-    box-sizing: border-box;
-    font-size: 2em;
-    transition: opacity ease .5s;
+section {
+    width: 80vw;
+    max-width: 100%;
+    margin: 0 auto;
 }
-.event .title {
-    text-align: center;
-    font-size: 2em;
-    margin: .5em
-}
-.event .data {
-    display: inline-flex;
-    justify-content: center;
-    width: 100%;
-}
-.event .poster {
-    max-width: 40%;
-    max-height: 70vh;
-    object-fit: contain;
-}
-.event .details {
-    margin: 1em;
-    font-size: 1.2em;
-    max-width: 40%;
-}
-.event .details > * {
+form, table {
     display: block;
-    margin-bottom: .2em;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #dddddd;
 }
-.event .description {
-    text-align: justify;
+input, button {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: inherit;
+    font-family: inherit;
+    border-radius: 4px;
+    border: 1px solid #dddddd;
+    padding: 6px 12px;
+    line-height: 1.5;
+    appearance: none;
+    margin-bottom: 8px;
 }
-.event .asso > .logo {
-    height: 2em;
-    vertical-align: middle;
+input[type="color" i] {
+    padding: 1px 2px;
+}
+input[type="button" i], input[type="submit" i], button {
+    background-color: #fa961d;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 1.1em;
+    text-decoration: none;
 }
 
 .material-icons {
