@@ -1,17 +1,27 @@
 const Events = (function(){
     function get() {
-        return sendRequest("GET", "events.json");
+        return sendRequest("GET", "api/events");
     }
     function getByAsso(asso) {
-        return sendRequest("GET", "events.json", {asso});
+        return sendRequest("GET", "api/events", {asso});
     }
     function add(event) {
-        return sendRequest("POST", "add.json", {event});
+        return sendRequest("POST", "api/events/add", event);
     }
-    function remove(id) {
-        return sendRequest("POST", "remove.json", {id});
+    function edit(event) {
+        return sendRequest("POST", "api/events/edit", event);
     }
-    return { get, getByAsso, add, remove }
+    function remove(event) {
+        return sendRequest("POST", "api/events/remove", event);
+    }
+    return { get, getByAsso, add, edit, remove }
+})();
+
+const Assos = (function(){
+    function get() {
+        return sendRequest("GET", "api/assos");
+    }
+    return { get }
 })();
 
 function sendRequest(method, url, body=undefined, headers={"Content-Type":"application/json"}) {

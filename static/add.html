@@ -18,11 +18,11 @@
                 <label for="color">Couleur</label>
                 <input id="color" name="color" type="color" required value="#ffffff" />
                 <label for="poster">Affiche (optionnel)</label>
-                <input id="poster" name="poster" type="text" placeholder="https://cdn.discordapp.com/attachments/830173108933099530/1021399480714674206/pLANisphere.png" />
+                <input id="poster" name="poster" type="file" accept="image/*" />
                 <label for="description">Description (optionnel)</label>
                 <input id="description" name="description" type="text" maxlength="128" placeholder="League of Legends, Smash Bros, Just Dance, Mario Kart, Nourriture, Boissons..." />
                 <label for="asso">Asso</label>
-                <input id="asso" name="asso" type="" placeholder="{name:Pixel Perfect, logo:https://eeisti.fr/images/eeisti.png}" />
+                <select id="asso" name="asso"></select>
                 <label for="date">Date et heure</label>
                 <input id="date" name="date" type="date" required />
                 <input id="time" name="time" type="time" required />
@@ -36,24 +36,40 @@
             </form>
         </section>
 <script>
+window.addEventListener("load", function(){
+    Assos.get().then(function(assos){
+        var assoSelect = document.getElementById("asso");
+        assos.forEach(asso => assoSelect.appendChild(createElement("option", {value:asso.id}, asso.name)));
+    });
+});
 function addEvent(form) {
-    Events.add({
-        title:form.title,
-        color:form.color,
-        poster:form.poster,
-        description:form.description,
-        asso:{name:form.asso,logo:"TODO"},
-        date:form.date,
-        time:form.time,
-        place:form.place,
-        price:form.price,
-        link:form.link
-    }).then(function(result){
-        if (result.success) {
-            alert("Évent ajouté");
-            window.location.href = "events";
-        } else alert(result.error);
-    }).catch((r)=>alert(r.error));
+    fileToBase64(form.poster.files[0]).then(function(poster){
+        Events.add({
+            title:form.title.value,
+            color:form.color.value,
+            poster:poster,
+            description:form.description.value,
+            asso:form.asso.value,
+            date:form.date.value,
+            time:form.time.value,
+            place:form.place.value,
+            price:form.price.value,
+            link:form.link.value
+        }).then(function(result){
+            if (result.success) {
+                window.location.href = "events.html";
+            } else alert(result.error);
+        }).catch((r)=>alert(r.error));
+    });
+}
+function fileToBase64(file) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.addEventListener("loadend", function() {
+            resolve(reader.result);
+        })
+        reader.readAsDataURL(file);
+    });
 }
 </script>
     </body>

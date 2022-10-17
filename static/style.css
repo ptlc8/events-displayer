@@ -26,12 +26,15 @@ section {
     margin: 0 auto;
 }
 form, table {
-    display: block;
+    width: 100%;
     padding: 1rem;
     border-radius: 4px;
     border: 1px solid #dddddd;
 }
-input, button {
+td {
+    text-align: center;
+}
+input, button, select {
     display: block;
     width: 100%;
     box-sizing: border-box;

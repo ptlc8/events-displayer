@@ -3,6 +3,7 @@ var EVENT_TRANSITION_DURATION = 500;
 var UPDATE_TIMEOUT = 60*1_000;
 var RELOAD_TIMEOUT = 60*60*1_000;
 var EVENTS = null;
+var ASSOS = null;
 
 
 window.addEventListener("load", async function() {
@@ -16,6 +17,7 @@ window.addEventListener("load", async function() {
 
 async function updateEvents() {
     EVENTS = await Events.get();
+    ASSOS = await Assos.get();
 }
 
 let eventIndex = 0;
@@ -34,6 +36,7 @@ function nextEvent() {
 function displayEvent(event) {
     var eventEl, qr;
     var textColor = calcLuminance(event.color)>0.25 ? "#000000" : "#ffffff";
+    var asso = ASSOS.find(a => a.id == event.asso) || {};
     document.body.appendChild(eventEl=createElement("article", {className:"event", style:{backgroundColor:event.color, color:textColor}}, [
         createElement("h1", {className:"title"}, event.title),
         createElement("div", {className:"data"}, [
@@ -41,8 +44,8 @@ function displayEvent(event) {
             createElement("div", {className:"details"}, [
                 createElement("span", {className:"description"}, event.description),
                 createElement("span", {className:"asso"}, [
-                    createElement("img", {className:"logo",src:event.asso.logo}),
-                    createElement("span", {}, event.asso.name)
+                    createElement("img", {className:"logo",src:asso.logo}),
+                    createElement("span", {}, asso.name)
                 ]),
                 createElement("span", {className:"datetime"}, [
                     createElement("span", {className:"material-icons"}, "event"),
