@@ -1,8 +1,15 @@
+"use strict";
+
 var EVENT_DURATION = 10_000;
 var EVENT_TRANSITION_DURATION = 500;
 var UPDATE_TIMEOUT = 60*1_000;
 var RELOAD_TIMEOUT = 60*60*1_000;
 var EVENTS = null;
+
+let eventIndex = 0;
+let eventsElement = document.getElementById("events");
+let progressBarElement = eventsElement.querySelector(".progress-bar");
+let progressValueElement = eventsElement.querySelector(".progress-value");
 
 window.addEventListener("load", async function() {
     await updateEvents();
@@ -16,22 +23,28 @@ async function updateEvents() {
     EVENTS = JSON.parse(await sendRequest("GET", "events.json"));
 }
 
-let eventIndex = 0;
 function nextEvent() {
-    let elementsToDelete = [...document.body.children];
+    let elementsToDelete = [...eventsElement.querySelectorAll(".event")];
     setTimeout(function(){
         for (let el of elementsToDelete)
-            document.body.removeChild(el);
+            eventsElement.removeChild(el);
     }, EVENT_TRANSITION_DURATION);
-    eventElement = displayEvent(EVENTS[eventIndex++%EVENTS.length]);
+    let index = eventIndex++ % EVENTS.length;
+    let eventElement = displayEvent(EVENTS[index]);
+    progressValueElement.textContent = index + 1 + "/" + EVENTS.length;
     eventElement.style.opacity = 0;
+    progressBarElement.style.transitionDuration = 0 + "ms";
+    progressBarElement.style.width = "0%";
     window.getComputedStyle(eventElement).opacity; // useful to update style
+    window.getComputedStyle(progressBarElement).width; // useful to update style
     eventElement.style.opacity = "";
+    progressBarElement.style.transitionDuration = EVENT_DURATION + "ms";
+    progressBarElement.style.width = "100%";
 }
 
 function displayEvent(event) {
     var eventEl, qr;
-    document.body.appendChild(eventEl=createElement("article", {className:"event", style:{backgroundColor:event.color}}, [
+    eventsElement.appendChild(eventEl=createElement("article", {className:"event", style:{backgroundColor:event.color}}, [
         createElement("h1", {className:"title"}, event.title),
         createElement("div", {className:"data"}, [
             event.poster ? createElement("img", {className:"poster", src:event.poster}) : "",
